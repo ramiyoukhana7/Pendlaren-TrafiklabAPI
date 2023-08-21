@@ -6,6 +6,8 @@ function App() {
     const [stops, setStops] = useState([]);
     const [selectedStop, setSelectedStop] = useState(null);
     const [departures, setDepartures] = useState([]);
+    const API_KEY = '8dfaea32-97af-469d-bd36-7aec7bdac733'; 
+
 
     function getPosition() {
         console.log('getPosition 1');
@@ -33,47 +35,46 @@ function App() {
               })
             }
 
-    function handleStopSelection(stop) {
-        setSelectedStop(stop);
-        getDepartures(stop.extId);
-
-    }
     function getDepartures(extId) {
-      const API_KEY = '8dfaea32-97af-469d-bd36-7aec7bdac733'; // din API-nyckel
       fetch(`https://api.resrobot.se/v2.1/departureBoard?id=${extId}&format=json&accessId=${API_KEY}`)
           .then(response => response.json())
           .then(data => {
               console.log(data);
-              setDepartures(data.Departure || []); // Antar att "Departure" är nyckeln i svaret för avgångsdata. Ändra om det behövs.
+              setDepartures(data.Departure || []);
                 });
               }
-  
-              return (
-                <div>
-                    <header>
-                        <h1> Geolocation </h1>
-                    </header>
-                    <main>
-                        <button onClick={getPosition}> See location </button>
-                        <p>{message}</p>
-                        <ul>
-                            {stops.map(stop => (
-                                <li key={stop.extId}>
-                                    <button onClick={() => handleStopSelection(stop)}>{stop.name}</button>
-                                </li>
-                            ))}
-                        </ul>
-                        {selectedStop ? <p>Selected Stop: {selectedStop.name}</p> : <p>Select a stop from the list above.</p>}
-                        
-                        <h2>Departures:</h2>
-                        <ul>
-                            {departures.map(departure => (
-                                <li key={departure.id}>{departure.name} at {departure.time}</li> // Ändra 'name' och 'time' baserat på den faktiska strukturen av svaret.
-                            ))}
-                        </ul>
-                    </main>
-                </div>
-            );
+
+    function handleStopSelection(stop) {
+                setSelectedStop(stop);
+                getDepartures(stop.extId);
             }
-            
-            export default App;
+  
+    return (
+      <div>
+          <header>
+              <h1>Geolocation</h1>
+          </header>
+          <main>
+              <button onClick={getPosition}>See location</button>
+              <p>{message}</p>
+              <ul>
+                  {stops.map(stop => (
+                      <li key={stop.extId}>
+                          <button onClick={() => handleStopSelection(stop)}>{stop.name}</button>
+                      </li>
+                  ))}
+              </ul>
+              {selectedStop ? <p>Selected Stop: {selectedStop.name}</p> : <p>Select a stop from the list above.</p>}
+
+              <h2>Departures:</h2>
+              <ul>
+                  {departures.map(departure => (
+                      <li key={departure.id}>{departure.name} at {departure.time}</li>
+                  ))}
+              </ul>
+          </main>
+      </div>
+  );
+}
+
+export default App;
