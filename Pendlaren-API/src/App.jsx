@@ -7,12 +7,12 @@ function App() {
     const [selectedStop, setSelectedStop] = useState(null);
     const [departures, setDepartures] = useState([]);
     const API_KEY = '8dfaea32-97af-469d-bd36-7aec7bdac733'; 
-
+  
+    const [fromStation, setFromStation] = useState('');
+    const [toStation, setToStation] = useState('');
 
     function getPosition() {
-        console.log('getPosition 1');
         if('geolocation' in navigator) {
-            console.log('getPosition 2');    
             navigator.geolocation.getCurrentPosition((position) => {
                 console.log('Position is: ', position);
                 const coords = position.coords;
@@ -26,7 +26,7 @@ function App() {
     }
 
     function getLocals(coords) {
-        fetch(`https://api.resrobot.se/v2.1/location.nearbystops?originCoordLat=${coords.latitude}&originCoordLong=${coords.longitude}&format=json&accessId=8dfaea32-97af-469d-bd36-7aec7bdac733`)
+        fetch(`https://api.resrobot.se/v2.1/location.nearbystops?originCoordLat=${coords.latitude}&originCoordLong=${coords.longitude}&format=json&accessId=${API_KEY}`)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -40,7 +40,7 @@ function App() {
           .then(response => response.json())
           .then(data => {
               console.log(data);
-              setDepartures(data.Departure || []);
+              setDepartures(data.Departure);
                 });
               }
 
@@ -48,6 +48,14 @@ function App() {
                 setSelectedStop(stop);
                 getDepartures(stop.extId);
             }
+    
+    function planTrip() {
+        fetch(`https://api.resrobot.se/v2.1/location.name?input=${fromStation}&format=json&accessId=${API_KEY}`)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+          })
+    }
   
     return (
       <div>
@@ -72,6 +80,25 @@ function App() {
                       <li key={departure.id}>{departure.name} at {departure.time}</li>
                   ))}
               </ul>
+            <label>
+                  from:
+                  <input 
+                    type='text'
+                    value={fromStation}
+                    onChange = {(e) => setFromStation(e.target.value)}
+                    placeholder='Enter starting station'
+                  />
+            </label>
+            <label>
+                  to:
+                  <input 
+                    type='text'
+                    value={toStation}
+                    onChange = {(e) => setToStation(e.target.value)}
+                    placeholder='Enter destination station'
+                  />
+            </label>
+            <button onClick={planTrip}>Plan Trip</button>
           </main>
       </div>
   );
